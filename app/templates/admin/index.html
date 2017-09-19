@@ -1,0 +1,74 @@
+{% extends 'layouts/base.html' %}
+
+{% macro dashboard_option(title, endpoint, description=None, icon=None) %}
+    <a class="column" href="{{ url_for(endpoint) }}">
+        <div class="ui padded segment">
+            <h3 class="ui header">
+                {% if icon is not none %}
+                    <i class="{{ icon }}"></i>
+                {% endif %}
+                <div class="content">
+                    {{ title }}
+                    {% if description is not none %}
+                        <div class="sub header">
+                            {{ description }}
+                        </div>
+                    {% endif %}
+                </div>
+            </h3>
+        </div>
+    </a>
+{% endmacro %}
+
+{% block content %}
+    <div class="ui stackable centered grid container">
+        <div class="twelve wide column">
+            <h2 class="ui header">
+                Admin Dashboard
+            </h2>
+            <h3>User Management</h3>
+            <div class="ui two column stackable grid">
+                {{ dashboard_option('Registered Participants', 'admin.registered_users',
+                                    description='View and manage participants', icon='users icon') }}
+                {{ dashboard_option('Add New Participant', 'admin.new_user',
+                description='Create a new user account (and you can set their password)', icon='add user icon') }}
+                {{ dashboard_option('Invite New Participant', 'admin.invite_user',
+                description='Invites a new user to create their own account (they set their own password)', icon='add user icon') }}
+                
+            </div>
+
+            <h3>Preset Plan Management</h3>
+            <div class="ui two column stackable grid">
+                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
+                description='Create a new Plan', icon='add icon') }}
+            </div>
+
+            <h3>Exercise Management</h3>
+            <div class="ui two column stackable grid">
+                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
+                description='Create a new Exercise', icon='add icon') }}
+                {{ dashboard_option('View All Exercises', 'admin.exercises',
+                description='View previously created exercises', icon='eye icon') }}
+            </div>
+
+            <h3>Medications Management</h3>
+            <div class="ui two column stackable grid">
+                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
+                description='Create a new Exercise', icon='add icon') }}
+            </div>
+
+            <h3>Nutrition Management</h3>
+            <div class="ui two column stackable grid">
+                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
+                description='Create a new Exercise', icon='add icon') }}
+            </div>
+
+            <h3>Pain Survey Management</h3>
+            <div class="ui two column stackable grid">
+                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
+                description='Create a new Exercise', icon='add icon') }}
+            </div>
+           
+        </div>
+    </div>
+{% endblock %}
