@@ -26,6 +26,32 @@
             <h2 class="ui header">
                 Participant Dashboard
             </h2>
+
+            <h3>Exercises</h3>
+            <div class="ui one column stackable grid">
+                 {{ dashboard_option('View Exercise Plan', 'participant.exercise_index',
+                description='View exercise plan', icon='add icon') }}
+            </div>
+            <h3>Nutrition</h3>
+            <div class="ui one column stackable grid">
+                 {{ dashboard_option('View Nutrition Plan', 'participant.nutrition_index',
+                description='View nutrition plan', icon='add icon') }}
+            </div>
+            <h3>Medication</h3>
+            <div class="ui one column stackable grid">
+                 {{ dashboard_option('View Medication Plan', 'participant.medication_index',
+                description='View medication plan', icon='add icon') }}
+            </div>
+            <h3>Pain Survey</h3>
+            <div class="ui one column stackable grid">
+                 {{ dashboard_option('View Pain Survey', 'participant.pain_index',
+                description='View pain survey', icon='add icon') }}
+            </div>
+            <h3>Journal</h3>
+            <div class="ui one column stackable grid">
+                 {{ dashboard_option('View journal', 'participant.journal_index',
+                description='View journal plan', icon='add icon') }}
+            </div>
         </div>
     </div>
 {% endblock %}

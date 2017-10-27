@@ -1,0 +1,98 @@
+{% extends 'layouts/base.html' %}
+
+{% macro dashboard_option(title, endpoint, description=None, icon=None) %}
+<a class="column" href="{{ url_for(endpoint) }}">
+  <div class="ui padded segment">
+    <h3 class="ui header">
+      {% if icon is not none %}
+      <i class="{{ icon }}"></i>
+      {% endif %}
+      <div class="content">
+        {{ title }}
+        {% if description is not none %}
+        <div class="sub header">
+          {{ description }}
+        </div>
+        {% endif %}
+      </div>
+    </h3>
+  </div>
+</a>
+{% endmacro %}
+
+{% block content %}
+<div class="ui stackable centered grid container">
+  <div class="twelve wide column">
+    <h2 class="ui header">
+      {{ title }} Dashboard
+    </h2>
+
+    <h3> {{ description }} </h3>
+
+    <h3><a href="{{ form_link }}">Link to secure form </a></h3>
+    <h3>{{ title }} Items</h3>
+    <div class="ui link cards">
+
+      {% for i in items %}
+      <div class="card">
+        <div class="content">
+          <div class="image" style="height: 200px; overflow-y: hidden">
+            {% for r in resources[loop.index0] %}
+            {% if '.png' in r.aws_url %}
+            <img src="{{ r.aws_url }}" height="200px">
+            {% endif %}
+            {% endfor %}
+          </div>
+          <div class="header">{{ i.name }}</div>
+          <div class="meta">
+            <a>{{ title }}</a>
+          </div>
+          <div class="description">
+            {{ i.description }}<br><br>
+            <b>{{ i.dosage }}</b>
+          </div>
+        </div>
+        <div class="ui modal" id="modal" data-id="{{ i.id }}">
+          <i class="close icon"></i>
+          <div class="header">
+            More Resources For Exercise {{ i.name }}
+          </div>
+          {% for r in resources[loop.index0] %}
+          <div class="image content">
+            <div class="ui large image">
+              <img src="{{ r.aws_url }}" height="100%"></img><br>
+            </div>
+            <div class="descrpition">
+              <div class="ui header"><a href="{{ r.aws_url}}">Link to image</a><br><br></div>
+              <p> {{ r.aws_url }} </p>
+            </div>
+          </div>
+          {% endfor %}
+          <div class="actions">
+            <div class="ui positive right labeled icon button">
+              Close
+              <i class="cancel icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <script>
+$(document).ready(function() {
+    var currModal;
+    $('body').on('click', '.card', function() {
+    console.log('in');
+    currModal = $(this).find('.ui.modal')
+    currModal.modal('toggle hide others')
+  });
+  $('body').on('click','.close', function() {
+    console.log('clicked')
+    currModal.modal('hide')
+    currModal = null
+  });
+  });
+  </script>
+  {% endblock %}
+

@@ -6,6 +6,7 @@ class Plan(db.Model):
     name = db.Column(db.String(1000), unique=True)
     plan_components = db.relationship('PlanComponent', backref='plan', lazy=True)
     plan_descriptions = db.relationship('PlanDescription', backref='plan', lazy=True)
+    plan_users = db.relationship('User', backref='plan', lazy='dynamic')
 
 
 

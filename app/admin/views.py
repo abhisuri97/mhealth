@@ -2,7 +2,7 @@ from flask import abort, flash, redirect, render_template, url_for, request
 from flask_login import current_user, login_required
 from flask_rq import get_queue
 
-from .forms import (ChangeAccountTypeForm, ChangeUserEmailForm, InviteUserForm,
+from .forms import (ChangeAccountTypeForm, ChangeUserEmailForm, ChangePlanForm, InviteUserForm,
                     NewUserForm, ExerciseForm, EditExerciseForm, MedicationForm,
                     EditMedicationForm, NutritionForm, EditNutritionForm, PlanForm)
 from . import admin
@@ -32,6 +32,7 @@ def new_user():
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             email=form.email.data,
+            plan=form.plan.data,
             password=form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -51,6 +52,7 @@ def invite_user():
             role=form.role.data,
             first_name=form.first_name.data,
             last_name=form.last_name.data,
+            plan=form.plan.data,
             email=form.email.data)
         db.session.add(user)
         db.session.commit()
@@ -134,6 +136,30 @@ def change_account_type(user_id):
         db.session.commit()
         flash('Role for user {} successfully changed to {}.'
               .format(user.full_name(), user.role.name), 'form-success')
+    return render_template('admin/manage_user.html', user=user, form=form)
+
+
+@admin.route(
+    '/user/<int:user_id>/change-plan-type', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def change_plan_type(user_id):
+    """Change a user's plan type."""
+    if current_user.id == user_id:
+        flash('You cannot change the type of your own account. Please ask '
+              'another administrator to do this.', 'error')
+        return redirect(url_for('admin.user_info', user_id=user_id))
+
+    user = User.query.get(user_id)
+    if user is None:
+        abort(404)
+    form = ChangePlanForm()
+    if form.validate_on_submit():
+        user.plan = form.plan.data
+        db.session.add(user)
+        db.session.commit()
+        flash('Plan for user {} successfully changed to {}.'
+              .format(user.full_name(), user.plan.name), 'form-success')
     return render_template('admin/manage_user.html', user=user, form=form)
 
 
@@ -460,6 +486,7 @@ def add_plan():
         PlanDescription.add_plan_description('exercise', form.exercise_description.data, form.exercise_link.data, plan.id)
         PlanDescription.add_plan_description('medication', form.medication_description.data, form.medication_link.data,  plan.id)
         PlanDescription.add_plan_description('nutrition', form.nutrition_description.data, form.nutrition_link.data, plan.id)
+        PlanDescription.add_plan_description('pain', form.pain_description.data, form.pain_link.data, plan.id)
         flash('plan {} successfully created'.format(plan.name),
               'form-success')
     return render_template('admin/add_plan.html', form=form)
@@ -480,11 +507,20 @@ def plans():
 def plan_info(plan_id):
     plan = Plan.query.filter_by(id=plan_id).first()
     exercises = [Exercise.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='exercise']
-    medications = [Medication.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='medication']
-    nutritions = [Nutrition.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='nutrition']
+    exercises_link = [x.form_link for x in plan.plan_descriptions if x if x.type=='exercise']
+    exercises_description = [x.description for x in plan.plan_descriptions if x.type=='exercise']
+    medications = [Exercise.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='medication']
+    medications_link = [x.form_link for x in plan.plan_descriptions if x.type=='medication']
+    medications_description = [x.description for x in plan.plan_descriptions if x.type=='medication']
+    nutritions = [Exercise.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='nutrition']
+    nutritions_link = [x.form_link for x in plan.plan_descriptions if x.type=='nutrition']
+    nutritions_description = [x.description for x in plan.plan_descriptions if x.type=='nutrition']
+
     if plan is None:
         abort(404)
-    return render_template('admin/manage_plan.html', plan=plan, exercises=exercises, nutritions=nutritions, medications=medications)
+    return render_template('admin/manage_plan.html', plan=plan, exercises=exercises, exercises_link=exercises_link, exercises_description=exercises_description,
+            nutritions=nutritions, nutritions_link=nutritions_link, nutritions_description=nutritions_description,
+            medications=medications, medications_link=medications_link, medications_description=medications_description)
 
 @admin.route('/plan/<int:plan_id>/change-info', methods=['GET', 'POST'])
 @login_required

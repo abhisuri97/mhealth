@@ -24,16 +24,22 @@
     <table class="ui compact definition table">
         <tr><td>Plan Name</td><td>{{ plan.name }}</td></tr>
         <tr><td>Exercises</td><td>
+             Forms: <a href="{{ exercises_link[0] }}">{{ exercises_link[0] }}</a><br>
+             Description: <a href="{{ exercises_description[0] }}">{{ exercises_description[0] }}</a>
             {% for x in exercises %} 
              <li><a href="{{ url_for('admin.exercise_info', exercise_id=x.id) }}">Exercise {{ x.name }}</a></li>
              {% endfor %}
           </td></tr>
         <tr><td>Medication</td><td>
+             Forms: <a href="{{ medications_link[0] }}">{{ medications_link[0] }}</a><br>
+             Description: <a href="{{ medications_description[0] }}">{{ medications_description[0] }}</a>
             {% for x in medications %} 
              <li><a href="{{ url_for('admin.medication_info', medication_id=x.id) }}">Medication {{ x.name }}</a></li>
              {% endfor %}
           </td></tr>
         <tr><td>Nutrition</td><td>
+             Forms: <a href="{{ nutritions_link[0] }}">{{ nutritions_link[0] }}</a><br>
+             Description: <a href="{{ nutritions_description[0] }}">{{ nutritions_description[0] }}</a>
             {% for x in nutritions %} 
              <li><a href="{{ url_for('admin.nutrition_info', nutrition_id=x.id) }}">Food {{ x.name }}</a></li>
              {% endfor %}

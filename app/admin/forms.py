@@ -7,7 +7,7 @@ from wtforms.validators import Email, EqualTo, InputRequired, Length
 from wtforms.widgets import TextArea
 
 from .. import db
-from ..models import Role, User, Exercise, Medication, Nutrition
+from ..models import Role, User, Exercise, Medication, Nutrition, Plan
 
 
 class ChangeUserEmailForm(Form):
@@ -28,6 +28,13 @@ class ChangeAccountTypeForm(Form):
         query_factory=lambda: db.session.query(Role).order_by('permissions'))
     submit = SubmitField('Update role')
 
+class ChangePlanForm(Form):
+    plan = QuerySelectField(
+        'New plan type',
+        validators=[InputRequired()],
+        get_label='name',
+        query_factory=lambda: db.session.query(Plan).order_by('name'))
+    submit = SubmitField('Update plan')
 
 class InviteUserForm(Form):
     role = QuerySelectField(
@@ -35,6 +42,11 @@ class InviteUserForm(Form):
         validators=[InputRequired()],
         get_label='name',
         query_factory=lambda: db.session.query(Role).order_by('permissions'))
+    plan = QuerySelectField(
+        'Plan type',
+        validators=[InputRequired()],
+        get_label='name',
+        query_factory=lambda: db.session.query(Plan).order_by('name'))
     first_name = StringField(
         'First name', validators=[InputRequired(), Length(1, 64)])
     last_name = StringField(
@@ -163,4 +175,9 @@ class PlanForm(Form):
         validators=[InputRequired()],
         get_label='name',
         query_factory=lambda: db.session.query(Nutrition).order_by('name'))
+    pain_description = StringField(
+        'Pain Survey Description', validators=[InputRequired(), Length(1, 10000)],
+        widget=TextArea())
+    pain_link = StringField(
+        'Pain Survey Link', validators=[InputRequired(), Length(1, 1000)])
     submit = SubmitField('Add Plan')

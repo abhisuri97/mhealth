@@ -1,7 +1,6 @@
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for
 from ..models import EditableHTML
 from flask_login import current_user
-import os, json, boto3
 from . import main
 
 
