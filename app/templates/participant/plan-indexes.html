@@ -38,7 +38,7 @@
         <div class="content">
           <div class="image" style="height: 200px; overflow-y: hidden">
             {% for r in resources[loop.index0] %}
-            {% if '.png' in r.aws_url %}
+            {% if ('.png' in r.aws_url or '.jpg' in r.aws_url) %}
             <img src="{{ r.aws_url }}" height="200px">
             {% endif %}
             {% endfor %}
