@@ -27,9 +27,13 @@
       {{ title }} Dashboard
     </h2>
 
-    <h3> {{ description }} </h3>
+    <h4> {{ description }} </h4>
 
-    <h3><a href="{{ form_link }}">Link to secure form </a></h3>
+    <h3>Survey, your identifier is {{ current_user.user_anon_id }}</h3>
+    <div class="ui one column stackable grid">
+      <iframe frameBorder="0" width="100%" height="800px"src="{{ link }}"></iframe>
+    </div>
+
     <h3>{{ title }} Items</h3>
     <div class="ui link cards">
 
