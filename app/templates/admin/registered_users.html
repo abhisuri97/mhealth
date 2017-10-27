@@ -48,7 +48,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for u in users | sort(attribute='last_name') %}
+                    {% for u in users | sort(attribute='user_anon_id') %}
                         <tr onclick="window.location.href = '{{ url_for('admin.user_info', user_id=u.id) }}';">
 
                             <td>{{ u.user_anon_id }}</td>
