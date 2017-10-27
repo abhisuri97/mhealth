@@ -300,8 +300,6 @@ def sign_s3():
       ExpiresIn = 6000
     )
 
-    print "presigned_post: "
-    print presigned_post
     # Return the data to the client
     return json.dumps({
       'data': presigned_post,
