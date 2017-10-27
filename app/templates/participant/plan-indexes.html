@@ -84,15 +84,19 @@ $(document).ready(function() {
     var currModal;
     $('body').on('click', '.card', function() {
     console.log('in');
-    currModal = $(this).find('.ui.modal')
-    currModal.modal('toggle hide others')
+    if (!currModal) {
+      console.log('no curr');
+      currModal = $(this).find('.ui.modal')
+      console.log(currModal);
+    }
+    currModal.modal('show')
   });
-  $('body').on('click','.close', function() {
+  $('body').on('click','.button', function() {
     console.log('clicked')
     currModal.modal('hide')
     currModal = null
   });
-  });
+});
   </script>
   {% endblock %}
 

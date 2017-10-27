@@ -24,7 +24,7 @@
 
 {% macro user_info(user) %}
     <table class="ui compact definition table">
-        <tr><td>Full name</td><td>{{ '%s %s' % (user.first_name, user.last_name) }}</td></tr>
+        <tr><td>ID</td><td>{{ user.user_anon_id }}</td></tr>
         <tr><td>Email address</td><td>{{ user.email }}</td></tr>
         <tr><td>Account type</td><td>{{ user.role.name }}</td></tr>
     </table>
@@ -39,7 +39,7 @@
             </a>
             <h2 class="ui header">
                 {{ user.full_name() }}
-                <div class="sub header">View and manage {{ user.first_name }}’s account.</div>
+                <div class="sub header">View and manage {{ user.user_anon_id }}’s account.</div>
             </h2>
         </div>
         <div class="stretched divided very relaxed row">

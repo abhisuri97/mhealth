@@ -47,10 +47,10 @@ class InviteUserForm(Form):
         validators=[InputRequired()],
         get_label='name',
         query_factory=lambda: db.session.query(Plan).order_by('name'))
-    first_name = StringField(
-        'First name', validators=[InputRequired(), Length(1, 64)])
-    last_name = StringField(
-        'Last name', validators=[InputRequired(), Length(1, 64)])
+    # first_name = StringField(
+        # 'First name', validators=[InputRequired(), Length(1, 64)])
+    # last_name = StringField(
+        # 'Last name', validators=[InputRequired(), Length(1, 64)])
     email = EmailField(
         'Email', validators=[InputRequired(), Length(1, 64), Email()])
     submit = SubmitField('Invite')

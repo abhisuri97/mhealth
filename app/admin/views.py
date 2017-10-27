@@ -29,14 +29,14 @@ def new_user():
     if form.validate_on_submit():
         user = User(
             role=form.role.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
+            # first_name=form.first_name.data,
+            # last_name=form.last_name.data,
             email=form.email.data,
             plan=form.plan.data,
             password=form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('User {} successfully created'.format(user.full_name()),
+        flash('User {} successfully created'.format(user.user_anon_id),
               'form-success')
     return render_template('admin/new_user.html', form=form)
 
@@ -50,8 +50,8 @@ def invite_user():
     if form.validate_on_submit():
         user = User(
             role=form.role.data,
-            first_name=form.first_name.data,
-            last_name=form.last_name.data,
+            # first_name=form.first_name.data,
+            # last_name=form.last_name.data,
             plan=form.plan.data,
             email=form.email.data)
         db.session.add(user)
@@ -69,7 +69,7 @@ def invite_user():
             template='account/email/invite',
             user=user,
             invite_link=invite_link, )
-        flash('User {} successfully invited'.format(user.full_name()),
+        flash('User {} successfully invited'.format(user.user_anon_id),
               'form-success')
     return render_template('admin/new_user.html', form=form)
 
