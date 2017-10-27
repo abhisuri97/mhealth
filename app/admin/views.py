@@ -3,13 +3,13 @@ from flask_login import current_user, login_required
 from flask_rq import get_queue
 
 from .forms import (ChangeAccountTypeForm, ChangeUserEmailForm, InviteUserForm,
-                    NewUserForm, ExerciseForm, EditExerciseForm)
+                    NewUserForm, ExerciseForm, EditExerciseForm, MedicationForm,
+                    EditMedicationForm, NutritionForm, EditNutritionForm, PlanForm)
 from . import admin
 from .. import db
 from ..decorators import admin_required
 from ..email import send_email
-from ..models import Role, User, EditableHTML, Exercise
-import os, json, boto3
+from ..models import Role, User, EditableHTML, Exercise, Resource, Medication, Nutrition, Plan, PlanComponent, PlanDescription
 
 
 @admin.route('/')
@@ -234,13 +234,18 @@ def change_exercise_info(exercise_id):
     if form.validate_on_submit():
         exercise.name = form.name.data
         exercise.description = form.description.data
+        url_list = form.url_list.data.split(',')
+        Resource.add_resource('exercise', url_list, exercise_id)
         db.session.add(exercise)
         db.session.commit()
         flash('Exercise successfully edited.', 'form-success')
-    elif form.is_submitted() is False: 
+    elif form.is_submitted() is False:
         form.name.data = exercise.name
         form.description.data = exercise.description
-    return render_template('admin/manage_exercise.html', exercise=exercise, form=form)
+        form.url_list.data = ','.join([r.aws_url + ';' + r.description for r in Resource.query.filter_by(fk_table='exercise').filter_by(fk_id=exercise_id).all()])
+    return render_template('admin/manage_exercise.html', exercise=exercise,
+                           form=form)
+
 
 @admin.route('/exercise/<int:exercise_id>/delete')
 @login_required
@@ -264,30 +269,267 @@ def delete_exercise(exercise_id):
     flash('Successfully deleted exercise', 'success')
     return redirect(url_for('admin.exercises'))
 
-@admin.route('/upload/asset')
+# Medication
+
+@admin.route('/add-medication', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def upload_asset():
-  S3_BUCKET = os.environ.get('S3_BUCKET')
+def add_medication():
+    """Create a new medicine."""
+    form = MedicationForm()
+    if form.validate_on_submit():
+        exercise = Medication(
+            name=form.name.data,
+            description=form.description.data,
+            dosage=form.dosage.data)
+        db.session.add(exercise)
+        db.session.commit()
+        flash('Medication {} successfully created'.format(exercise.name),
+              'form-success')
+    return render_template('admin/add_medication.html', form=form)
 
-  file_name = request.args.get('file_name')
-  file_type = request.args.get('file_type')
+@admin.route('/all-medications')
+@login_required
+@admin_required
+def medications():
+    """View all medications."""
+    medications = Medication.query.all()
+    return render_template(
+        'admin/medications.html', medications=medications)
 
-  s3 = boto3.client('s3')
+@admin.route('/medication/<int:medication_id>')
+@admin.route('/medication/<int:medication_id>/info')
+@login_required
+@admin_required
+def medication_info(medication_id):
+    medication = Medication.query.filter_by(id=medication_id).first()
+    if medication is None:
+        abort(404)
+    return render_template('admin/manage_medication.html', medication=medication)
 
-  presigned_post = s3.generate_presigned_post(
-    Bucket = S3_BUCKET,
-    Key = file_name,
-    Fields = {"acl": "public-read", "Content-Type": file_type},
-    Conditions = [
-      {"acl": "public-read"},
-      {"Content-Type": file_type}
-    ],
-    ExpiresIn = 3600
-  )
+@admin.route('/medication/<int:medication_id>/change-info', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def change_medication_info(medication_id):
+    """Change a user's email."""
+    medication = Medication.query.filter_by(id=medication_id).first()
+    if medication is None:
+        abort(404)
+    form = EditMedicationForm()
 
-  return json.dumps({
-    'data': presigned_post,
-    'url': 'https://%s.s3.amazonaws.com/%s' % (S3_BUCKET, file_name)
-  })
+    if form.validate_on_submit():
+        medication.name = form.name.data
+        medication.description = form.description.data
+        medication.dosage = form.dosage.data
+        db.session.add(medication)
+        db.session.commit()
+        flash('Exercise successfully edited.', 'form-success')
+    elif form.is_submitted() is False:
+        medication.name = form.name.data
+        medication.description = form.description.data
+        medication.dosage = form.dosage.data
 
+    return render_template('admin/manage_medication.html', medication=medication,
+                           form=form)
+
+
+@admin.route('/medication/<int:medication_id>/delete')
+@login_required
+@admin_required
+def delete_medication_request(medication_id):
+    """Request deletion of a user's account."""
+    medication = Medication.query.filter_by(id=medication_id).first()
+    if medication is None:
+        abort(404)
+    return render_template('admin/manage_medication.html', medication=medication)
+
+
+@admin.route('/medication/<int:medication_id>/_delete')
+@login_required
+@admin_required
+def delete_medication(medication_id):
+    """Delete an exercise."""
+    medication = Medication.query.filter_by(id=medication_id).first()
+    db.session.delete(medication)
+    db.session.commit()
+    flash('Successfully deleted medication', 'success')
+    return redirect(url_for('admin.medications'))
+
+
+# nutritions
+
+@admin.route('/add-nutrition', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_nutrition():
+    """Create a new user."""
+    form = NutritionForm()
+    if form.validate_on_submit():
+        nutrition = Nutrition(
+            name=form.name.data,
+            description=form.description.data)
+        db.session.add(nutrition)
+        db.session.commit()
+        flash('nutrition {} successfully created'.format(nutrition.name),
+              'form-success')
+    return render_template('admin/add_nutrition.html', form=form)
+
+@admin.route('/all-nutritions')
+@login_required
+@admin_required
+def nutritions():
+    """View all registered users."""
+    nutritions = Nutrition.query.all()
+    return render_template(
+        'admin/nutritions.html', nutritions=nutritions)
+
+@admin.route('/nutrition/<int:nutrition_id>')
+@admin.route('/nutrition/<int:nutrition_id>/info')
+@login_required
+@admin_required
+def nutrition_info(nutrition_id):
+    nutrition = Nutrition.query.filter_by(id=nutrition_id).first()
+    if nutrition is None:
+        abort(404)
+    return render_template('admin/manage_nutrition.html', nutrition=nutrition)
+
+@admin.route('/nutrition/<int:nutrition_id>/change-info', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def change_nutrition_info(nutrition_id):
+    """Change a user's email."""
+    nutrition = Nutrition.query.filter_by(id=nutrition_id).first()
+    if nutrition is None:
+        abort(404)
+    form = EditNutritionForm()
+
+    if form.validate_on_submit():
+        nutrition.name = form.name.data
+        nutrition.description = form.description.data
+        url_list = form.url_list.data.split(',')
+        Resource.add_resource('nutrition', url_list, nutrition_id)
+        db.session.add(nutrition)
+        db.session.commit()
+        flash('nutrition successfully edited.', 'form-success')
+    elif form.is_submitted() is False:
+        form.name.data = nutrition.name
+        form.description.data = nutrition.description
+        form.url_list.data = ','.join([r.aws_url + ';' + r.description for r in Resource.query.filter_by(fk_table='nutrition').filter_by(fk_id=nutrition_id).all()])
+    return render_template('admin/manage_nutrition.html', nutrition=nutrition,
+                           form=form)
+
+
+@admin.route('/nutrition/<int:nutrition_id>/delete')
+@login_required
+@admin_required
+def delete_nutrition_request(nutrition_id):
+    """Request deletion of a user's account."""
+    nutrition = Nutrition.query.filter_by(id=nutrition_id).first()
+    if nutrition is None:
+        abort(404)
+    return render_template('admin/manage_nutrition.html', nutrition=nutrition)
+
+
+@admin.route('/nutrition/<int:nutrition_id>/_delete')
+@login_required
+@admin_required
+def delete_nutrition(nutrition_id):
+    """Delete an nutrition."""
+    nutrition = Nutrition.query.filter_by(id=nutrition_id).first()
+    db.session.delete(nutrition)
+    db.session.commit()
+    flash('Successfully deleted nutrition', 'success')
+    return redirect(url_for('admin.nutritions'))
+
+# Plans
+
+@admin.route('/add-plan', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_plan():
+    """Create a new user."""
+    form = PlanForm()
+    if form.validate_on_submit():
+        plan = Plan(
+            name=form.name.data)
+        db.session.add(plan)
+        db.session.commit()
+        PlanComponent.add_plan_component('exercise', form.exercise_components.data, plan.id)
+        PlanComponent.add_plan_component('medication', form.medication_components.data, plan.id)
+        PlanComponent.add_plan_component('nutrition', form.nutrition_components.data, plan.id)
+        PlanDescription.add_plan_description('exercise', form.exercise_description.data, form.exercise_link.data, plan.id)
+        PlanDescription.add_plan_description('medication', form.medication_description.data, form.medication_link.data,  plan.id)
+        PlanDescription.add_plan_description('nutrition', form.nutrition_description.data, form.nutrition_link.data, plan.id)
+        flash('plan {} successfully created'.format(plan.name),
+              'form-success')
+    return render_template('admin/add_plan.html', form=form)
+
+@admin.route('/all-plans')
+@login_required
+@admin_required
+def plans():
+    """View all registered users."""
+    plans = Plan.query.all()
+    return render_template(
+        'admin/plans.html', plans=plans)
+
+@admin.route('/plan/<int:plan_id>')
+@admin.route('/plan/<int:plan_id>/info')
+@login_required
+@admin_required
+def plan_info(plan_id):
+    plan = Plan.query.filter_by(id=plan_id).first()
+    exercises = [Exercise.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='exercise']
+    medications = [Medication.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='medication']
+    nutritions = [Nutrition.query.filter_by(id=x.fk_id).first() for x in plan.plan_components if x.fk_table=='nutrition']
+    if plan is None:
+        abort(404)
+    return render_template('admin/manage_plan.html', plan=plan, exercises=exercises, nutritions=nutritions, medications=medications)
+
+@admin.route('/plan/<int:plan_id>/change-info', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def change_plan_info(plan_id):
+    """Change a user's email."""
+    plan = Plan.query.filter_by(id=plan_id).first()
+    if plan is None:
+        abort(404)
+    form = PlanForm()
+
+    if form.validate_on_submit():
+        PlanComponent.add_plan_component('exercise', form.exercise_components.data, plan.id)
+        PlanComponent.add_plan_component('medication', form.medication_components.data, plan.id)
+        PlanComponent.add_plan_component('nutrition', form.nutrition_components.data, plan.id)
+        PlanDescription.add_plan_description('exercise', form.exercise_description.data, form.exercise_link.data, plan.id)
+        PlanDescription.add_plan_description('medication', form.medication_description.data, form.medication_link.data,  plan.id)
+        PlanDescription.add_plan_description('nutrition', form.nutrition_description.data, form.nutrition_link.data, plan.id)
+        flash('plan {} successfully updated'.format(plan.name),
+              'form-success')
+    elif form.is_submitted() is False:
+        form.name.data = plan.name
+
+    return render_template('admin/manage_plan.html', plan=plan,
+                           form=form)
+
+
+@admin.route('/plan/<int:plan_id>/delete')
+@login_required
+@admin_required
+def delete_plan_request(plan_id):
+    """Request deletion of a user's account."""
+    plan = Plan.query.filter_by(id=plan_id).first()
+    if plan is None:
+        abort(404)
+    return render_template('admin/manage_plan.html', plan=plan)
+
+
+@admin.route('/plan/<int:plan_id>/_delete')
+@login_required
+@admin_required
+def delete_plan(plan_id):
+    """Delete an plan."""
+    plan = Plan.query.filter_by(id=plan_id).first()
+    db.session.delete(plan)
+    db.session.commit()
+    flash('Successfully deleted plan', 'success')
+    return redirect(url_for('admin.plans'))

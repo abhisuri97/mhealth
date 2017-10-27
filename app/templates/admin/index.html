@@ -39,8 +39,10 @@
 
             <h3>Preset Plan Management</h3>
             <div class="ui two column stackable grid">
-                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
+                 {{ dashboard_option('Create New Plan', 'admin.add_plan',
                 description='Create a new Plan', icon='add icon') }}
+                {{ dashboard_option('View All Plans', 'admin.plans',
+                description='View previously created plans', icon='eye icon') }}
             </div>
 
             <h3>Exercise Management</h3>
@@ -53,19 +55,23 @@
 
             <h3>Medications Management</h3>
             <div class="ui two column stackable grid">
-                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
-                description='Create a new Exercise', icon='add icon') }}
+                 {{ dashboard_option('Create New Medication', 'admin.add_medication',
+                description='Create a new Medication', icon='add icon') }}
+                {{ dashboard_option('View All Medications', 'admin.medications',
+                description='View previously created medications', icon='eye icon') }}
             </div>
 
             <h3>Nutrition Management</h3>
             <div class="ui two column stackable grid">
-                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
-                description='Create a new Exercise', icon='add icon') }}
+                 {{ dashboard_option('Create New Food', 'admin.add_nutrition',
+                description='Create a new food', icon='add icon') }}
+                {{ dashboard_option('View All Foods', 'admin.nutritions',
+                description='View previously created nutritions', icon='eye icon') }}
             </div>
 
             <h3>Pain Survey Management</h3>
             <div class="ui two column stackable grid">
-                 {{ dashboard_option('Create New Exercise', 'admin.add_exercise',
+                 {{ dashboard_option(' New Exercise', 'admin.add_exercise',
                 description='Create a new Exercise', icon='add icon') }}
             </div>
            

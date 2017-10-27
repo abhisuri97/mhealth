@@ -52,3 +52,11 @@ nav .mobile.only.row .ui.vertical.menu {
 table.selectable tr:hover {
   cursor: pointer !important;
 }
+
+@media -sass-debug-info{filename{}line{font-family:\0000358}}
+#file {
+  margin-top: 10px;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 10px;
+  border-radius: 5px;
+}

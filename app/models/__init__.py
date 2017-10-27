@@ -7,3 +7,6 @@ from .user import *  # noqa
 from .miscellaneous import *  # noqa
 from .exercise import *  # noqa
 from .resource import *  # noqa
+from .medication import *  # noqa
+from .nutrition import *  # noqa
+from .plan import *  # noqa

@@ -54,3 +54,10 @@ nav .mobile.only.row {
 table.selectable tr:hover {
     cursor: pointer !important;
 }
+
+#file {
+  margin-top: 10px;
+  background-color: rgba(0,0,0,.05);
+  padding: 10px;
+  border-radius: 5px;
+}

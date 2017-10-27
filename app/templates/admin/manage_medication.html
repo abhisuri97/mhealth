@@ -1,19 +1,19 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 
- {% set deletion_endpoint = 'admin.delete_exercise_request' %}
+ {% set deletion_endpoint = 'admin.delete_medication_request' %}
 
 {% set endpoints = [
-    ('admin.exercise_info', 'Exercise information'),
-    ('admin.change_exercise_info', 'Change Details'),
-    (deletion_endpoint, 'Delete exercise')
+    ('admin.medication_info', 'Medication information'),
+    ('admin.change_medication_info', 'Change Details'),
+    (deletion_endpoint, 'Delete medication')
 ] %}
 
 
 {% macro navigation(items) %}
     <div class="ui vertical fluid secondary menu">
         {% for route, name in items %}
-            {% set href = url_for(route, exercise_id=exercise.id) %}
+            {% set href = url_for(route, medication_id=medication.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ name }}
             </a>
@@ -21,23 +21,24 @@
     </div>
 {% endmacro %}
 
-{% macro exercise_info(exercise) %}
+{% macro medication_info(medication) %}
     <table class="ui compact definition table">
-        <tr><td>Exercise Name</td><td>{{ exercise.name }}</td></tr>
-        <tr><td>Description</td><td>{{ exercise.description }}</td></tr>
+        <tr><td>Medication Name</td><td>{{ medication.name }}</td></tr>
+        <tr><td>Description</td><td>{{ medication.description }}</td></tr>
+        <tr><td>Dosage</td><td>{{ medication.dosage }}</td></tr>
     </table>
 {% endmacro %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <a class="ui basic compact a" href="{{ url_for('admin.exercises') }}">
+            <a class="ui basic compact a" href="{{ url_for('admin.medications') }}">
                 <i class="caret left icon"></i>
-                Back to all exercises
+                Back to all medications
             </a>
             <h2 class="ui header">
-                {{ exercise.name }}
-                <div class="sub header">View and manage {{ exercise.name }}</div>
+                {{ medication.name }}
+                <div class="sub header">View and manage {{ medication.name }}</div>
             </h2>
         </div>
         <div class="stretched divided very relaxed row">
@@ -51,7 +52,7 @@
                         <div class="content">
                             This action is permanent
                             <div class="sub header">
-                                Deleting an exercise is not a reversible change. Any information associated
+                                Deleting an medication is not a reversible change. Any information associated
                                 with this record will be removed, and cannot be recovered.
                             </div>
                         </div>
@@ -65,14 +66,14 @@
                             </div>
                         </div>
                         <a class="ui disabled negative deletion a">
-                            Delete this exercise
+                            Delete this medication
                         </a>
                     </div>
                     </div>
                 {% elif form %}
                     {{ f.render_form(form) }}
                 {% else %}
-                    {{ exercise_info(exercise) }}
+                    {{ medication_info(medication) }}
                 {% endif %}
             </div>
         </div>
@@ -82,7 +83,7 @@
         $('.deletion.checkbox').checkbox({
             onChecked: function() {
                 $('.deletion.a').removeClass('disabled')
-                        .attr('href', '{{ url_for('admin.delete_exercise', exercise_id=exercise.id) }}');
+                        .attr('href', '{{ url_for('admin.delete_medication', medication_id=medication.id) }}');
             },
             onUnchecked: function() {
                 $('.deletion.a').addClass('disabled').removeAttr('href');

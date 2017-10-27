@@ -1,19 +1,18 @@
 {% extends 'layouts/base.html' %}
 {% import 'macros/form_macros.html' as f %}
 
- {% set deletion_endpoint = 'admin.delete_exercise_request' %}
+ {% set deletion_endpoint = 'admin.delete_plan_request' %}
 
 {% set endpoints = [
-    ('admin.exercise_info', 'Exercise information'),
-    ('admin.change_exercise_info', 'Change Details'),
-    (deletion_endpoint, 'Delete exercise')
+    ('admin.plan_info', 'Plan information'),
+    (deletion_endpoint, 'Delete plan')
 ] %}
 
 
 {% macro navigation(items) %}
     <div class="ui vertical fluid secondary menu">
         {% for route, name in items %}
-            {% set href = url_for(route, exercise_id=exercise.id) %}
+            {% set href = url_for(route, plan_id=plan.id) %}
             <a class="item {% if request.endpoint == route %}active{% endif %}" href="{{ href }}">
                 {{ name }}
             </a>
@@ -21,23 +20,37 @@
     </div>
 {% endmacro %}
 
-{% macro exercise_info(exercise) %}
+{% macro plan_info(plan) %}
     <table class="ui compact definition table">
-        <tr><td>Exercise Name</td><td>{{ exercise.name }}</td></tr>
-        <tr><td>Description</td><td>{{ exercise.description }}</td></tr>
+        <tr><td>Plan Name</td><td>{{ plan.name }}</td></tr>
+        <tr><td>Exercises</td><td>
+            {% for x in exercises %} 
+             <li><a href="{{ url_for('admin.exercise_info', exercise_id=x.id) }}">Exercise {{ x.name }}</a></li>
+             {% endfor %}
+          </td></tr>
+        <tr><td>Medication</td><td>
+            {% for x in medications %} 
+             <li><a href="{{ url_for('admin.medication_info', medication_id=x.id) }}">Medication {{ x.name }}</a></li>
+             {% endfor %}
+          </td></tr>
+        <tr><td>Nutrition</td><td>
+            {% for x in nutritions %} 
+             <li><a href="{{ url_for('admin.nutrition_info', nutrition_id=x.id) }}">Food {{ x.name }}</a></li>
+             {% endfor %}
+          </td></tr>
     </table>
 {% endmacro %}
 
 {% block content %}
     <div class="ui stackable centered grid container">
         <div class="twelve wide column">
-            <a class="ui basic compact a" href="{{ url_for('admin.exercises') }}">
+            <a class="ui basic compact a" href="{{ url_for('admin.plans') }}">
                 <i class="caret left icon"></i>
-                Back to all exercises
+                Back to all plans
             </a>
             <h2 class="ui header">
-                {{ exercise.name }}
-                <div class="sub header">View and manage {{ exercise.name }}</div>
+                {{ plan.name }}
+                <div class="sub header">View and manage {{ plan.name }}</div>
             </h2>
         </div>
         <div class="stretched divided very relaxed row">
@@ -51,7 +64,7 @@
                         <div class="content">
                             This action is permanent
                             <div class="sub header">
-                                Deleting an exercise is not a reversible change. Any information associated
+                                Deleting an plan is not a reversible change. Any information associated
                                 with this record will be removed, and cannot be recovered.
                             </div>
                         </div>
@@ -65,14 +78,14 @@
                             </div>
                         </div>
                         <a class="ui disabled negative deletion a">
-                            Delete this exercise
+                            Delete this plan
                         </a>
                     </div>
                     </div>
                 {% elif form %}
                     {{ f.render_form(form) }}
                 {% else %}
-                    {{ exercise_info(exercise) }}
+                    {{ plan_info(plan) }}
                 {% endif %}
             </div>
         </div>
@@ -82,7 +95,7 @@
         $('.deletion.checkbox').checkbox({
             onChecked: function() {
                 $('.deletion.a').removeClass('disabled')
-                        .attr('href', '{{ url_for('admin.delete_exercise', exercise_id=exercise.id) }}');
+                        .attr('href', '{{ url_for('admin.delete_plan', plan_id=plan.id) }}');
             },
             onUnchecked: function() {
                 $('.deletion.a').addClass('disabled').removeAttr('href');
