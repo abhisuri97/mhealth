@@ -27,4 +27,14 @@
 
         </div>
     </div>
+  <script>
+    $('#submit').on('click', function(e) {
+      if ($.urlParam('popup')) {
+        e.preventDefault();
+        var id = {% if id %} {{ id }} {% else %} 0 {% endif %}
+        window.opener.receiveProp('nutrition', id, $('#name').val());
+        $(this).unbind('submit').submit()
+      }
+    })
+  </script>
 {% endblock %}

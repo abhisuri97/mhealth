@@ -44,5 +44,185 @@
               <input type="hidden" name="csrf_token" value="{{ csrf_token()|safe }}">
             </div>
         {% endif %}
+    <script>
+$.urlParam = function(name){
+  var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+  return results[1] || 0;
+}
+        $(document).ready(function() {
+            var urls = $('#url_list').val().split(',');
+            var f = $('#fileUpload').html();
+            console.log(f)
+            $('#uploadFiles').html(f)
+            $('#files').replaceWith('<a id="fileSelect" class="ui button">Choose/Upload Exercise</a>')
+            for(var i = 0; i < urls.length; i++) {
+              if(urls[i].length > 0) {
+                $('#fileUpload').parent().after('<div id="file"><p><a>' + urls[i].split(';')[0] + '</a><br><button class="ui button" id="delete">Remove</button></p></div>');
+              }
+            }
+
+            function custIdxOf(arr, str) {
+              var idx = -1;
+              for(var i = 0; i < arr.length; i++) {
+                if (idx === -1 && arr[i].indexOf(str) > -1) {
+                  idx = i
+                }
+              }
+              return idx
+            }
+            $(document).on('click', '#delete', function(e) {
+              var url = $($(this).parent().children()[0]).text()
+              console.log(url);
+              var arr = $('#url_list').val().split(',')
+              var idx = custIdxOf(arr, url)
+              console.log(idx);
+              if (idx > -1) {
+                arr.splice(idx, 1)
+              }
+              console.log(arr);
+              $('#url_list').val(arr.join(','));
+              $(this).parent().parent().remove()
+            })
+            var idx = 0; 
+            var fileArr = [];
+            $('body').on('click', '#fileSelect', function() {
+              $('.ui.modal').modal('show');
+            })
+            $('body').on('click', '#addResource', function() {
+              $('.ui.modal').modal('toggle');
+              var r = $(this).data('url');
+              handleFunc(r)
+                $('#fileUpload').parent().after('<div id="file"><p><a>' + r + '</a><br><button class="ui button" id="delete">Remove</button></p></div>');
+            })
+            $('body').on('change', '#files', function() {
+              var file = $('#files')[0].files[0]
+              fileArr.push(file);
+              console.log(file)
+              $('.ui.modal').modal('toggle');
+              $('#fileUpload').append('<div id="file"><p>' + file.name + 
+                '</p><a id="startUpload" data-idx="' + (fileArr.length - 1) + 
+                '">Upload File</a><br><br><div data-idx="' + (fileArr.length -1) + '" class="ui indicating progress">'
+                + '<div class="bar"></div></div> ' + 
+                ' <div data-idx="' + (fileArr.length -1) + '" id="url></div></div>');
+            })
+            $('body').on('click', '#startUpload', function() {
+              var idx = $(this).data('idx')
+              var file = fileArr[$(this).data('idx')]
+
+              getSignedRequest(file, idx);
+            })
+
+            
+    function uploadFile(file, s3Data, url, urlUpload, idx){
+      // basic validation
+      var fileType = url.substring(url.lastIndexOf('.') + 1);
+      
+      var xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener("progress", updateProgress);
+      xhr.open('POST', urlUpload);
+      xhr.setRequestHeader('x-amz-acl', 'public-read');
+
+      var postData = new FormData();
+      for(key in s3Data.fields){
+        postData.append(key, s3Data.fields[key]);
+      }
+      postData.append('file', file);
+      console.log(file);
+      function updateProgress (e) {
+        if (e.lengthComputable) {
+          var percentComplete = ((100*e.loaded)/e.total).toFixed(2);
+          var percentCompleteShort = ((100*e.loaded)/e.total).toFixed(0);
+          $('div[data-idx="' + idx + '"]').progress({
+            percent: percentComplete
+          });
+        }
+      }
+      xhr.onreadystatechange = function()  {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200 || xhr.status === 204) {
+            $('div[data-idx="' + idx + '"]').after('<p>URL: <a href="' + url + '">' + url + '</a>')
+            handleFunc(url);
+          }
+          else{
+            console.log("\n\n\nstatus: ", xhr.status);
+            alert('Could not upload file.');
+          }
+        }
+      };
+      xhr.send(postData);
+    }
+
+    function handleFunc(url) {
+      var curr = $('#url_list').val()
+      $('#url_list').val(curr + ',' + url + ';');
+    };
+
+    /*
+      Function to get the temporary signed request from the Python app.
+      If request successful, continue to upload the file using this signed
+      request.
+    */
+    function getSignedRequest(file, idx){
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', `/account/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      xhr.onreadystatechange = function() {
+        if(xhr.readyState === 4){
+          if(xhr.status === 200){
+            var response = JSON.parse(xhr.responseText);
+            console.log("response form json dumps: ", response);
+            uploadFile(file, response.data, response.url, response.url_upload, idx);
+          }
+          else{
+            alert('Could not get signed URL.');
+          }
+        }
+      };
+      xhr.send();
+    }
+
+    $('#url_list').hide();
+    $('label[for="url_list"]').hide()
+
+  });
+
+    </script>
+<div class="ui modal">
+  <i class="close icon"></i>
+  <div class="header">
+    Previous Uploads
+  </div>
+  <div class="content">
+    {% if resources %}
+    <div class="ui link cards">
+      {% for r in resources %}
+      <div class="card">
+        <div class="image">
+          <video controls width="100%" height="200px">
+            <source src="{{ r.aws_url }}">
+          </video>
+        </div>
+        <div class="content">
+          <a class="header">{% if r is iterable  %} {% if r|length > 0 %} {{ r[0].get_resource_name() }} {% endif %} {% else %} {{ r.get_resource_name() }} {% endif %}</a>
+          <div class="description">
+            {% if r is iterable %} {% if r|length > 0 %}  {{ r[0].get_resource_description() }} {% endif %} {% else %} {{ r.get_resource_name() }} {% endif %}
+          </div>
+          <a id="addResource" data-url="{{ r.aws_url}}" class="ui button green">Add resource</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <br><br>
+    <div id="file">
+    <div id="uploadFiles"></div>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui positive right labeled icon button">
+      Close
+      <i class="close icon"></i>
+    </div>
+  </div>
+</div>
     </body>
 </html>

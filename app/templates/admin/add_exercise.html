@@ -27,4 +27,13 @@
 
         </div>
     </div>
+  <script>
+    $('#submit').on('click', function(e) {
+      if ($.urlParam('popup')) {
+        var id = {% if id %} {{ id }} {% else %} 0 {% endif %}
+        window.opener.receiveProp('exercise', id, $('#name').val());
+        $("#submit").unbind('click').click();
+      }
+    })
+  </script>
 {% endblock %}

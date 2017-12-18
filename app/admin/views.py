@@ -217,16 +217,21 @@ def update_editor_contents():
 @admin_required
 def add_exercise():
     """Create a new user."""
-    form = ExerciseForm()
+    form = EditExerciseForm()
+    resources = Resource.query.all()
+    id = Exercise.query.order_by('id desc').first().id
     if form.validate_on_submit():
         exercise = Exercise(
             name=form.name.data,
             description=form.description.data)
         db.session.add(exercise)
         db.session.commit()
+        url_list = form.url_list.data.split(',')
+        Resource.add_resource('exercise', url_list, exercise.id)
         flash('Exercise {} successfully created'.format(exercise.name),
               'form-success')
-    return render_template('admin/add_exercise.html', form=form)
+        return redirect(url_for('admin.exercises'))
+    return render_template('admin/add_exercise.html', id=id, form=form, resources=resources)
 
 @admin.route('/all-exercises')
 @login_required
@@ -245,6 +250,7 @@ def exercise_info(exercise_id):
     exercise = Exercise.query.filter_by(id=exercise_id).first()
     if exercise is None:
         abort(404)
+    resources = Resource.query.all()
     return render_template('admin/manage_exercise.html', exercise=exercise)
 
 @admin.route('/exercise/<int:exercise_id>/change-info', methods=['GET', 'POST'])
@@ -269,8 +275,9 @@ def change_exercise_info(exercise_id):
         form.name.data = exercise.name
         form.description.data = exercise.description
         form.url_list.data = ','.join([r.aws_url + ';' + r.description for r in Resource.query.filter_by(fk_table='exercise').filter_by(fk_id=exercise_id).all()])
+    resources = Resource.query.all()
     return render_template('admin/manage_exercise.html', exercise=exercise,
-                           form=form)
+                           form=form, resources=resources)
 
 
 @admin.route('/exercise/<int:exercise_id>/delete')
@@ -303,6 +310,7 @@ def delete_exercise(exercise_id):
 def add_medication():
     """Create a new medicine."""
     form = MedicationForm()
+    id = Medication.query.order_by('id desc').first().id
     if form.validate_on_submit():
         exercise = Medication(
             name=form.name.data,
@@ -312,7 +320,7 @@ def add_medication():
         db.session.commit()
         flash('Medication {} successfully created'.format(exercise.name),
               'form-success')
-    return render_template('admin/add_medication.html', form=form)
+    return render_template('admin/add_medication.html', id=id, form=form)
 
 @admin.route('/all-medications')
 @login_required
@@ -389,16 +397,20 @@ def delete_medication(medication_id):
 @admin_required
 def add_nutrition():
     """Create a new user."""
-    form = NutritionForm()
+    form = EditNutritionForm()
+    id = Nutrition.query.order_by('id desc').first().id
     if form.validate_on_submit():
         nutrition = Nutrition(
             name=form.name.data,
             description=form.description.data)
         db.session.add(nutrition)
         db.session.commit()
+        url_list = form.url_list.data.split(',')
+        Resource.add_resource('nutrition', url_list, nutrition.id)
         flash('nutrition {} successfully created'.format(nutrition.name),
               'form-success')
-    return render_template('admin/add_nutrition.html', form=form)
+    resources = Resource.query.all()
+    return render_template('admin/add_nutrition.html', id=id, form=form, resources=resources)
 
 @admin.route('/all-nutritions')
 @login_required
@@ -429,6 +441,7 @@ def change_nutrition_info(nutrition_id):
         abort(404)
     form = EditNutritionForm()
 
+    resources = Resource.query.all()
     if form.validate_on_submit():
         nutrition.name = form.name.data
         nutrition.description = form.description.data
@@ -442,7 +455,7 @@ def change_nutrition_info(nutrition_id):
         form.description.data = nutrition.description
         form.url_list.data = ','.join([r.aws_url + ';' + r.description for r in Resource.query.filter_by(fk_table='nutrition').filter_by(fk_id=nutrition_id).all()])
     return render_template('admin/manage_nutrition.html', nutrition=nutrition,
-                           form=form)
+                           form=form, resources=resources)
 
 
 @admin.route('/nutrition/<int:nutrition_id>/delete')

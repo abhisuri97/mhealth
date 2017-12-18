@@ -24,7 +24,40 @@
                 'success': get_flashed_messages(category_filter=['form-success'])
             } %}
             {{ f.render_form(form) }}
+            <a id="test">CLICK ME</a>
 
         </div>
     </div>
+  <script>
+var w;
+    $(document).ready(function() {
+      $('label[for=exercise_components').append(' or <a id="addExercise">Upload Exercises</a>');
+      $('label[for=medication_components').append(' or <a id="addMedication">Upload Medications</a>');
+      $('label[for=nutrition_components').append(' or <a id="addNutrition">Upload Nutrition</a>');
+      $('body').on('click', '#addExercise', function() {
+        var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
+        w = window.open('{{ url_for("admin.add_exercise", popup='true') }}', "Add new resource", strWindowFeatures)
+      })
+      $('body').on('click', '#addMedication', function() {
+        var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
+        w = window.open('{{ url_for("admin.add_medication", popup='true') }}', "Add new resource", strWindowFeatures)
+      })
+      $('body').on('click', '#addNutrition', function() {
+        var strWindowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
+        w = window.open('{{ url_for("admin.add_nutrition", popup='true') }}', "Add new resource", strWindowFeatures)
+      })
+    })
+    function receiveProp(type, id, name) { 
+      if (type === 'exercise') {
+        console.log(type + ' ' + id + ' ' + name);
+        $('#exercise_components').append('<option value="' + id + '">' + name + '</option>')
+      }
+      if (type === 'medication') {
+        $('#medication_components').append('<option value="' + id + '">' + name + '</option>')
+      }
+      if (type === 'nutrition') {
+        $('#nutrition_components').append('<option value="' + id + '">' + name + '</option>')
+      }
+    }
+  </script>
 {% endblock %}

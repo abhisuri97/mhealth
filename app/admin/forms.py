@@ -93,7 +93,7 @@ class EditExerciseForm(Form):
     url_list = StringField(
         'URL List', validators=[Length(0, 10000)],
         widget=TextArea())
-    submit = SubmitField('Edit Exercise')
+    submit = SubmitField('Save Exercise')
 
 
 class MedicationForm(Form):
@@ -139,7 +139,7 @@ class EditNutritionForm(Form):
     url_list = StringField(
         'URL List', validators=[Length(0, 10000)],
         widget=TextArea())
-    submit = SubmitField('Edit Nutrition')
+    submit = SubmitField('Save Food')
 
 
 class PlanForm(Form):
@@ -149,7 +149,7 @@ class PlanForm(Form):
         'Exercise Description', validators=[InputRequired(), Length(1, 10000)],
         widget=TextArea())
     exercise_link = StringField(
-        'Exercise Link', validators=[InputRequired(), Length(1, 1000)])
+        'Exercise Survey Link', validators=[Length(1, 1000)])
     exercise_components = QuerySelectMultipleField(
         'Exercise Components',
         validators=[InputRequired()],
@@ -159,7 +159,7 @@ class PlanForm(Form):
         'Medication Description', validators=[InputRequired(), Length(1, 10000)],
         widget=TextArea())
     medication_link = StringField(
-        'Medication Link', validators=[InputRequired(), Length(1, 1000)])
+        'Medication Survey Link', validators=[Length(1, 1000)])
     medication_components = QuerySelectMultipleField(
         'Medication Components',
         validators=[InputRequired()],
@@ -169,7 +169,7 @@ class PlanForm(Form):
         'Nutrition Description', validators=[InputRequired(), Length(1, 10000)],
         widget=TextArea())
     nutrition_link = StringField(
-        'Nutrition Link', validators=[InputRequired(), Length(1, 1000)])
+        'Nutrition Survey Link', validators=[Length(1, 1000)])
     nutrition_components = QuerySelectMultipleField(
         'Nutrition Components',
         validators=[InputRequired()],

@@ -8,6 +8,15 @@ class Resource(db.Model):
     fk_id = db.Column(db.Integer)
     fk_table = db.Column(db.String(64), nullable=True)
 
+    def get_resource_name(self):
+        a = db.session.query(db.Model.metadata.tables[self.fk_table]).filter_by(id=self.fk_id).first()
+        if a is not None:
+            return a.name
+
+    def get_resource_description(self):
+        a = db.session.query(db.Model.metadata.tables[self.fk_table]).filter_by(id=self.fk_id).first()
+        if a is not None:
+            return a.description
 
     @staticmethod
     def add_resource(table, urls, fk_id):

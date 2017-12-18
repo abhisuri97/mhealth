@@ -43,9 +43,7 @@
         <div class="content">
           <div class="image" style="height: 200px; overflow-y: hidden">
             {% for r in resources[loop.index0] %}
-            {% if ('.png' in r.aws_url or '.jpg' in r.aws_url) %}
-            <img src="{{ r.aws_url }}" height="200px">
-            {% endif %}
+            <video controls src="{{ r.aws_url }}" height="200px"></video>
             {% endfor %}
           </div>
           <br>
@@ -66,7 +64,7 @@
           {% for r in resources[loop.index0] %}
           <div class="image content">
             <div class="ui large image">
-              <img src="{{ r.aws_url }}" height="100%"></img><br>
+              <video controls src="{{ r.aws_url }}" height="200px"></video><br>
             </div>
             <div class="descrpition">
               <div class="ui header"><a href="{{ r.aws_url}}">Link to Resource</a><br><br></div>
