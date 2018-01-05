@@ -6,8 +6,11 @@ class Medication(db.Model):
     name = db.Column(db.String(1000), unique=True)
     description = db.Column(db.Text)
     dosage = db.Column(db.Text)
+    days = db.Column(db.Text)
 
-    def __init__(self, name, description, dosage):
+    def __init__(self, name, description, dosage, days):
         self.name = name
         self.description = description
         self.dosage = dosage
+        self.days = days
+

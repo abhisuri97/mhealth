@@ -219,11 +219,13 @@ def add_exercise():
     """Create a new user."""
     form = EditExerciseForm()
     resources = Resource.query.all()
-    id = Exercise.query.order_by('id desc').first().id
+    first_ex = Exercise.query.order_by('id desc').first()
+    id = first_ex.id if (first_ex is not None) else 1
     if form.validate_on_submit():
         exercise = Exercise(
             name=form.name.data,
-            description=form.description.data)
+            description=form.description.data,
+            days=str(form.days.data))
         db.session.add(exercise)
         db.session.commit()
         url_list = form.url_list.data.split(',')
@@ -266,6 +268,7 @@ def change_exercise_info(exercise_id):
     if form.validate_on_submit():
         exercise.name = form.name.data
         exercise.description = form.description.data
+        exercise.days = str(form.days.data)
         url_list = form.url_list.data.split(',')
         Resource.add_resource('exercise', url_list, exercise_id)
         db.session.add(exercise)
@@ -274,6 +277,7 @@ def change_exercise_info(exercise_id):
     elif form.is_submitted() is False:
         form.name.data = exercise.name
         form.description.data = exercise.description
+        form.days.data = exercise.days
         form.url_list.data = ','.join([r.aws_url + ';' + r.description for r in Resource.query.filter_by(fk_table='exercise').filter_by(fk_id=exercise_id).all()])
     resources = Resource.query.all()
     return render_template('admin/manage_exercise.html', exercise=exercise,
@@ -310,11 +314,13 @@ def delete_exercise(exercise_id):
 def add_medication():
     """Create a new medicine."""
     form = MedicationForm()
-    id = Medication.query.order_by('id desc').first().id
+    first_ex = Medication.query.order_by('id desc').first()
+    id = first_ex.id if (first_ex is not None) else 1
     if form.validate_on_submit():
         exercise = Medication(
             name=form.name.data,
             description=form.description.data,
+            days=str(form.days.data),
             dosage=form.dosage.data)
         db.session.add(exercise)
         db.session.commit()
@@ -355,6 +361,7 @@ def change_medication_info(medication_id):
         medication.name = form.name.data
         medication.description = form.description.data
         medication.dosage = form.dosage.data
+        medication.days = str(form.days.data)
         db.session.add(medication)
         db.session.commit()
         flash('Exercise successfully edited.', 'form-success')
@@ -362,6 +369,7 @@ def change_medication_info(medication_id):
         medication.name = form.name.data
         medication.description = form.description.data
         medication.dosage = form.dosage.data
+        medication.days = str(form.days.data)
 
     return render_template('admin/manage_medication.html', medication=medication,
                            form=form)
@@ -398,10 +406,12 @@ def delete_medication(medication_id):
 def add_nutrition():
     """Create a new user."""
     form = EditNutritionForm()
-    id = Nutrition.query.order_by('id desc').first().id
+    first_ex = Nutrition.query.order_by('id desc').first()
+    id = first_ex.id if (first_ex is not None) else 1
     if form.validate_on_submit():
         nutrition = Nutrition(
             name=form.name.data,
+            days=str(form.days.data),
             description=form.description.data)
         db.session.add(nutrition)
         db.session.commit()
@@ -445,6 +455,7 @@ def change_nutrition_info(nutrition_id):
     if form.validate_on_submit():
         nutrition.name = form.name.data
         nutrition.description = form.description.data
+        nutrition.days = str(form.days.data)
         url_list = form.url_list.data.split(',')
         Resource.add_resource('nutrition', url_list, nutrition_id)
         db.session.add(nutrition)
@@ -453,6 +464,7 @@ def change_nutrition_info(nutrition_id):
     elif form.is_submitted() is False:
         form.name.data = nutrition.name
         form.description.data = nutrition.description
+        form.days.data = nutrition.days
         form.url_list.data = ','.join([r.aws_url + ';' + r.description for r in Resource.query.filter_by(fk_table='nutrition').filter_by(fk_id=nutrition_id).all()])
     return render_template('admin/manage_nutrition.html', nutrition=nutrition,
                            form=form, resources=resources)

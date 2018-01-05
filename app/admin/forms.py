@@ -1,7 +1,7 @@
 from flask_wtf import Form
 from wtforms import ValidationError
 from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
-from wtforms.fields import PasswordField, StringField, SubmitField, FileField 
+from wtforms.fields import PasswordField, StringField, SubmitField, FileField, SelectMultipleField
 from wtforms.fields.html5 import EmailField
 from wtforms.validators import Email, EqualTo, InputRequired, Length
 from wtforms.widgets import TextArea
@@ -77,6 +77,9 @@ class ExerciseForm(Form):
     description = StringField(
         'Exercise Description', validators=[InputRequired(), Length(1, 10000)],
         widget=TextArea())
+    days = SelectMultipleField('Day(s) of the week to do this exercise', validators=[InputRequired()],
+            choices=[('M', 'Monday'), ('T', 'Tuesday'), ('W', 'Wednesday'), ('R', 'Thursday'), ('F', 'Friday'),
+                ('S', 'Saturday'), ('U', 'Sunday')])
     submit = SubmitField('Add Exercise')
 
     def validate_name(self, field):
@@ -93,6 +96,9 @@ class EditExerciseForm(Form):
     url_list = StringField(
         'URL List', validators=[Length(0, 10000)],
         widget=TextArea())
+    days = SelectMultipleField('Day(s) of the week to do this exercise', validators=[InputRequired()],
+            choices=[('M', 'Monday'), ('T', 'Tuesday'), ('W', 'Wednesday'), ('R', 'Thursday'), ('F', 'Friday'),
+                ('S', 'Saturday'), ('U', 'Sunday')])
     submit = SubmitField('Save Exercise')
 
 
@@ -105,6 +111,9 @@ class MedicationForm(Form):
     dosage = StringField(
         'Medication Dosage', validators=[InputRequired(), Length(1, 10000)],
         widget=TextArea())
+    days = SelectMultipleField('Day(s) of the week to take medication', validators=[InputRequired()],
+            choices=[('M', 'Monday'), ('T', 'Tuesday'), ('W', 'Wednesday'), ('R', 'Thursday'), ('F', 'Friday'),
+                ('S', 'Saturday'), ('U', 'Sunday')])
     submit = SubmitField('Add Medication')
 
 
@@ -117,6 +126,9 @@ class EditMedicationForm(Form):
     dosage = StringField(
         'Medication Dosage', validators=[InputRequired(), Length(1, 10000)],
         widget=TextArea())
+    days = SelectMultipleField('Day(s) of the week to take medication', validators=[InputRequired()],
+            choices=[('M', 'Monday'), ('T', 'Tuesday'), ('W', 'Wednesday'), ('R', 'Thursday'), ('F', 'Friday'),
+                ('S', 'Saturday'), ('U', 'Sunday')])
     submit = SubmitField('Edit Exercise')
 
 
@@ -126,6 +138,9 @@ class NutritionForm(Form):
     description = StringField(
         'Food Description', validators=[InputRequired(), Length(1, 10000)],
         widget=TextArea())
+    days = SelectMultipleField('Day(s) of the week to eat this food', validators=[InputRequired()],
+            choices=[('M', 'Monday'), ('T', 'Tuesday'), ('W', 'Wednesday'), ('R', 'Thursday'), ('F', 'Friday'),
+                ('S', 'Saturday'), ('U', 'Sunday')])
     submit = SubmitField('Add Food')
 
 
@@ -139,6 +154,9 @@ class EditNutritionForm(Form):
     url_list = StringField(
         'URL List', validators=[Length(0, 10000)],
         widget=TextArea())
+    days = SelectMultipleField('Day(s) of the week to eat this food', validators=[InputRequired()],
+            choices=[('M', 'Monday'), ('T', 'Tuesday'), ('W', 'Wednesday'), ('R', 'Thursday'), ('F', 'Friday'),
+                ('S', 'Saturday'), ('U', 'Sunday')])
     submit = SubmitField('Save Food')
 
 

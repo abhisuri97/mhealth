@@ -1,16 +1,22 @@
 #!/usr/bin/env python
 import os
+import ast
 import subprocess
 from config import Config
-
+import logging
+logging.basicConfig()
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
 from redis import Redis
 from rq import Connection, Queue, Worker
 
 from app import create_app, db
-from app.models import Role, User
+from app.models import Role, User, Resource, Plan, Exercise, Medication, Nutrition, PlanComponent, PlanDescription
 
+from datetime import datetime
+import time
+
+from apscheduler.schedulers.background import BlockingScheduler
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -102,6 +108,32 @@ def run_worker():
     with Connection(conn):
         worker = Worker(map(Queue, listen))
         worker.work()
+
+
+def tick():
+    with app.app_context():
+        print(app.config['EMAIL_SENDER'])
+        try:
+            for p in Plan.query.all():
+                # users = p.plan_users.all()
+                notifs = []
+                for c in p.plan_components:
+                    table = c.fk_table
+                    id = c.fk_id
+                    resource = db.session.query(db.Model.metadata.tables[table]).filter_by(id=id).first()
+                    # arr_days = ast.literal_eval(resource.days)
+                    notifs.append('Name {}, Description: {}, Days: {}'.format(resource.name, resource.description, resource.days))
+                    print('added resource {}'.format(resource.name))
+                print(notifs)
+        except:
+            print("Error")
+
+@manager.command
+def run_clock():
+    scheduler = BlockingScheduler()
+    scheduler.add_job(tick, 'interval', seconds=5)
+    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+    scheduler.start()
 
 
 @manager.command
