@@ -152,7 +152,7 @@ def tick():
 def run_clock():
     scheduler = BlockingScheduler()
     start_time = datetime.now(pytz.timezone('US/Eastern')).replace(hour=6, minute=30, second=0)
-    scheduler.add_job(tick, 'interval', start_date=start_time, seconds=10)
+    scheduler.add_job(tick, 'interval', start_date=start_time, seconds=86400)
     print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
     scheduler.start()
 
