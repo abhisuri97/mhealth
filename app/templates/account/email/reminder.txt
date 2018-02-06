@@ -1,0 +1,9 @@
+Dear {{ user.full_name() }},
+
+You have some tasks to do today for the transplant study!
+
+{% for n in notifs %} - {{ n }} {% endfor %}
+
+Sincerely,
+
+The {{ config.APP_NAME }} Team

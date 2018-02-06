@@ -1,0 +1,11 @@
+<p>Dear {{ user.full_name() }},</p>
+
+<p>You have some tasks to do today for the transplant study!</p>
+
+<ul>
+  {% for n in notifs %} <li> {{ n }} </li> {% endfor %}
+</ul>
+
+<p>Sincerely,</p>
+
+<p>The {{ config.APP_NAME }} Team</p>
