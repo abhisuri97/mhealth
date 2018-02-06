@@ -9,7 +9,7 @@ from . import admin
 from .. import db
 from ..decorators import admin_required
 from ..email import send_email
-from ..models import Role, User, EditableHTML, Exercise, Resource, Medication, Nutrition, Plan, PlanComponent, PlanDescription
+from ..models import Role, User, EditableHTML, Exercise, Resource, Medication, Nutrition, Plan, PlanComponent, PlanDescription, PlanTodo, UsageStats
 
 
 @admin.route('/')
@@ -163,6 +163,24 @@ def change_plan_type(user_id):
     return render_template('admin/manage_user.html', user=user, form=form)
 
 
+@admin.route('/user/<int:user_id>/usage-stats', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def usage_stats(user_id):
+    user = User.query.get(user_id)
+    if user is None:
+        abort(404)
+    times = UsageStats.query.filter_by(user_id=user_id).all()
+    evts = PlanTodo.query.filter_by(user_id=user_id).all()
+    for e in evts:
+        table = PlanComponent.query.get(e.plan_component_id).fk_table
+        id = PlanComponent.query.get(e.plan_component_id).fk_id
+        rs = db.session.query(db.Model.metadata.tables[table]).filter_by(id=id).first()
+        e.name = rs.name
+        e.type = table
+    return render_template('admin/manage_user.html', user=user, evts=evts, times=times)
+
+
 @admin.route('/user/<int:user_id>/delete')
 @login_required
 @admin_required
@@ -230,7 +248,11 @@ def add_exercise():
         db.session.commit()
         url_list = form.url_list.data.split(',')
         Resource.add_resource('exercise', url_list, exercise.id)
-        flash('Exercise {} successfully created'.format(exercise.name),
+        popup = request.args.get('popup')
+        msg = ''
+        if popup == 'true':
+            msg = 'You can now close this window and return to plan creation.' 
+        flash('Exercise {} successfully created. {}'.format(exercise.name, msg),
               'form-success')
         return redirect(url_for('admin.exercises'))
     return render_template('admin/add_exercise.html', id=id, form=form, resources=resources)
@@ -324,7 +346,11 @@ def add_medication():
             dosage=form.dosage.data)
         db.session.add(exercise)
         db.session.commit()
-        flash('Medication {} successfully created'.format(exercise.name),
+        popup = request.args.get('popup')
+        msg = ''
+        if popup == 'true':
+            msg = 'You can now close this window and return to plan creation.' 
+        flash('Medication {} successfully created. {}'.format(exercise.name, msg),
               'form-success')
     return render_template('admin/add_medication.html', id=id, form=form)
 
@@ -417,7 +443,11 @@ def add_nutrition():
         db.session.commit()
         url_list = form.url_list.data.split(',')
         Resource.add_resource('nutrition', url_list, nutrition.id)
-        flash('nutrition {} successfully created'.format(nutrition.name),
+        popup = request.args.get('popup')
+        msg = ''
+        if popup == 'true':
+            msg = 'You can now close this window and return to plan creation.' 
+        flash('Nutrition {} successfully created. {}'.format(nutrition.name, msg),
               'form-success')
     resources = Resource.query.all()
     return render_template('admin/add_nutrition.html', id=id, form=form, resources=resources)

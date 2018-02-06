@@ -8,6 +8,7 @@
     ('admin.change_user_email', 'Change email address'),
     ('admin.change_account_type', 'Change account type'),
     ('admin.change_plan_type', 'Change plan type'),
+    ('admin.usage_stats', 'User usage records'),
     (deletion_endpoint, 'Delete user')
 ] %}
 
@@ -71,6 +72,20 @@
                         </a>
                     </div>
                     </div>
+                {% elif request.endpoint == 'admin.usage_stats' %}
+                    <table class="ui compact definition table">
+                      <tr><th>Page Name</th><th>Length of time (seconds)</th><th>Date</th></tr>
+                    {% for e in times %}
+                    <tr><td>{{ e.page }}</td><td>{{ e.length }}</td><td>{{e.time}}</td></tr>
+                    {% endfor %}
+                    </table>
+                    <br><br>
+                    <table class="ui compact definition table">
+                      <tr><th>Name of task</th><th>Type of Task</th><th>Task done?</th><th>Last updated</th></tr>
+                    {% for e in evts %}
+                    <tr><td>{{ e.name }}</td><td>{{ e.type }}</td><td>{{e.status}}</td><td>{{ e.last_updated }}</td></tr>
+                    {% endfor %}
+                    </table>
                 {% elif form %}
                     {{ f.render_form(form) }}
                 {% else %}

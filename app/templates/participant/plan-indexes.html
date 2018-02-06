@@ -21,21 +21,43 @@
 {% endmacro %}
 
 {% block content %}
+
 <div class="ui stackable centered grid container">
   <div class="twelve wide column">
     <h2 class="ui header">
       {{ title }} Dashboard
     </h2>
 
-    <h4> {{ description }} </h4>
+    <h4> Description: {{ description }} </h4>
 
-    <h3>Survey, your identifier is {{ current_user.user_anon_id }}</h3>
-    <div class="ui one column stackable grid">
-      <iframe frameBorder="0" width="100%" height="300px"src="{{ form_link }}"></iframe>
-      
-    </div>
-
-    <h3>{{ title }} Items</h3>
+    <!--<h3>Survey, your identifier is {{ current_user.user_anon_id }}</h3>-->
+    <!--<div class="ui one column stackable grid">-->
+      <!--<iframe frameBorder="0" width="100%" height="300px"src="{{ form_link }}"></iframe>-->
+      <!---->
+    <!--</div>-->
+    <h3>Todo today</h3>
+      <div class="ui styled fluid accordion">
+      {% for (i, id) in todo %}
+        <div class=" title">
+          <i class="dropdown icon"></i>
+          {{ i.name }}
+        </div>
+        <div class=" content">
+          {{ i.description }}<br><br>
+          <b>{{ i.dosage }}</b>
+          <div class="image" style="height: 200px; overflow-y: hidden">
+            {% for r in todo_resources[loop.index0] %}
+            <video controls src="{{ r.aws_url }}" height="200px"></video>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="actions" style="padding-left: 20px; padding-bottom: 10px;">
+          <a data-id="{{ id }}" data-type="complete" id="todo" class="ui green label">Mark {{ title }} as Complete</a>
+          <a data-id="{{ id }}" data-type="incomplete" id="todo" class="ui red label">Mark {{ title }} as Incomplete</a>
+        </div>
+      {% endfor %}
+      </div>
+    <h3>All {{ title }} Items</h3>
     <div class="ui link cards">
 
       {% for i in items %}
@@ -100,6 +122,37 @@ $(document).ready(function() {
     currModal.modal('hide')
     currModal = null
   });
+  $('body').on('click', '#todo', function() {
+    var id = $(this).data('id');
+    var type = $(this).data('type')
+    $.ajax({
+           type: 'GET',
+           url: '/participant/todo/' + id + '/' + type,
+           success: function(res) {
+            alert('marked as ' + type );
+           }
+    })
+  })
+  var seconds = 0;
+  setInterval(function() { 
+    seconds++;
+    console.log(seconds);
+  }, 1000);
+  $( window ).unload(function() {
+    console.log(seconds);
+    $.ajax({
+           type: 'POST',
+           url: '/participant/stats/{{ current_user.id }}/{{ title }}/' + seconds,
+           contentType: 'application/json;charset=UTF-8',
+           async: false, 
+           success: function(res) {
+              return;
+           }
+    })
+  });
+$('.accordion')
+  .accordion()
+;
 });
   </script>
   {% endblock %}

@@ -191,6 +191,12 @@ class AnonymousUser(AnonymousUserMixin):
     def is_admin(self):
         return False
 
+class UsageStats(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    page = db.Column(db.String(1000))
+    time = db.Column(db.DateTime)
+    length = db.Column(db.Integer)
 
 login_manager.anonymous_user = AnonymousUser
 

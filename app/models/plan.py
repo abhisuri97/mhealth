@@ -1,4 +1,5 @@
 from .. import db
+import datetime
 
 
 class Plan(db.Model):
@@ -37,3 +38,11 @@ class PlanDescription(db.Model):
         p = PlanDescription(type=type, description=desc, plan_id=plan_id, form_link=link)
         db.session.add(p)
         db.session.commit()
+
+
+class PlanTodo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    plan_component_id = db.Column(db.Integer, db.ForeignKey('plan_component.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    status = db.Column(db.Boolean, default=False) 
+    last_updated = db.Column(db.DateTime, onupdate=datetime.datetime.now)

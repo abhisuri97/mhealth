@@ -30,10 +30,9 @@
   <script>
     $('#submit').on('click', function(e) {
       if ($.urlParam('popup')) {
-        e.preventDefault();
         var id = {% if id %} {{ id }} {% else %} 0 {% endif %}
         window.opener.receiveProp('medication', id, $('#name').val());
-        $(this).unbind('submit').submit()
+        $("#submit").unbind('click').click();
       }
     })
   </script>
