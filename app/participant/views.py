@@ -37,9 +37,6 @@ def get_form_link(table):
             return x.form_link
 
 
-days = ['M','T','W','R','F','S','U']
-eastern = timezone('US/Eastern')
-day = days[datetime.now(eastern).weekday()]
 
 
 @participant.route('/todo/<int:plan_id>/<string:type>')
@@ -70,11 +67,17 @@ def exercise_index():
 
 
 def get_resources(current_user, type):
+    days = ['M','T','W','R','F','S','U']
+    eastern = timezone('US/Eastern')
+    day = days[datetime.now(eastern).weekday()]
+    print(day)
     rs = []
     todo = []
     for x in current_user.plan.plan_components:
+        print(x.fk_table)
         if x.fk_table == type:
-            rs = [(e, x.id) for e in db.session.query(db.Model.metadata.tables[type]).filter_by(id=x.fk_id).all()]
+            rs+= [(e, x.id) for e in db.session.query(db.Model.metadata.tables[type]).filter_by(id=x.fk_id).all()]
+    print(rs)
     for (e, id) in rs:
         arr_days = ast.literal_eval(e.days)
         for d in arr_days:
