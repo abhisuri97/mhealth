@@ -1,4 +1,6 @@
-Dear {{ user.full_name() }},
+Dear participant,
+
+Visit https://mhealth-transplant.herokuapp.com to complete these tasks
 
 You have some tasks to do today for the transplant study!
 

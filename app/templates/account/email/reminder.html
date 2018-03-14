@@ -1,6 +1,8 @@
-<p>Dear {{ user.full_name() }},</p>
+<p>Dear participant,</p>
 
 <p>You have some tasks to do today for the transplant study!</p>
+
+<p>Visit <a href="https://mhealth-transplant.herokuapp.com/">https://mhealth-transplant.herokuapp.com/</a> to complete these tasks</p>
 
 <ul>
   {% for n in notifs %} <li> {{ n }} </li> {% endfor %}
