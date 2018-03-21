@@ -1,1 +1,5 @@
 venv
+*.env
+*.rdb
+app/static/.webassets-cache
+*.pyc
