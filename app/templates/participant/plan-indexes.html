@@ -30,17 +30,17 @@
 
     <h4> Description: {{ description }} </h4>
 
-    <!--<h3>Survey, your identifier is {{ current_user.user_anon_id }}</h3>-->
-    <!--<div class="ui one column stackable grid">-->
-      <!--<iframe frameBorder="0" width="100%" height="300px"src="{{ form_link }}"></iframe>-->
-      <!---->
-    <!--</div>-->
+    <h3>Survey, your identifier is {{ current_user.user_anon_id }}</h3>
+    <div class="ui one column stackable grid">
+      <iframe frameBorder="0" width="100%" height="300px"src="{{ form_link }}"></iframe>
+      
+    </div>
     <h3>Todo today</h3>
       <div class="ui styled fluid accordion">
-      {% for (i, id) in todo %}
+      {% for (i, status, id) in todo %}
         <div class=" title">
           <i class="dropdown icon"></i>
-          {{ i.name }}
+          {{ i.name }} 
         </div>
         <div class=" content">
           {{ i.description }}<br><br>
@@ -52,8 +52,10 @@
           </div>
         </div>
         <div class="actions" style="padding-left: 20px; padding-bottom: 10px;">
-          <a data-id="{{ id }}" data-type="complete" id="todo" class="ui green label">Mark {{ title }} as Complete</a>
-          <a data-id="{{ id }}" data-type="incomplete" id="todo" class="ui red label">Mark {{ title }} as Incomplete</a>
+          <a data-id="{{ id }}" data-type="{% if status.status == True %}in{%endif%}complete" id="todo" 
+            class="ui {%  if status.status == True %} red {% else  %} green {% endif %} label">
+            Mark {{ title }} as {% if status.status == True %}In{%endif%}complete
+          </a>
         </div>
       {% endfor %}
       </div>
@@ -124,13 +126,18 @@ $(document).ready(function() {
   });
   $('body').on('click', '#todo', function() {
     var id = $(this).data('id');
-    var type = $(this).data('type')
+    var type = $(this).data('type');
+    var self = this;
     $.ajax({
            type: 'GET',
            url: '/participant/todo/' + id + '/' + type,
            success: function(res) {
-            alert('marked as ' + type );
-           }
+             var newType = (type === 'complete' ? 'incomplete' : 'complete');
+             var newClass = 'ui ' + (newType === 'incomplete' ? 'red' : 'green') + ' label';
+             $(self).data('type', newType);
+             $(self).attr('class', newClass);
+             $(self).text('Mark {{ title }} as ' + newType);
+          }
     })
   })
   var seconds = 0;

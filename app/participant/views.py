@@ -82,10 +82,11 @@ def get_resources(current_user, type):
         arr_days = ast.literal_eval(e.days)
         for d in arr_days:
             if d == day:
-                todo.append((e, id))
+                status = PlanTodo.query.filter_by(plan_component_id=id, user_id=current_user.id).order_by('id desc').first()
+                todo.append((e, status, id))
 
     resources = [Resource.query.filter_by(fk_id=x.id).filter_by(fk_table=type).all() for (x, _) in rs]
-    todo_resources = [Resource.query.filter_by(fk_id=x.id).filter_by(fk_table=type).all() for (x, _) in todo]
+    todo_resources = [Resource.query.filter_by(fk_id=x.id).filter_by(fk_table=type).all() for (x,_, _) in todo]
     return (rs, resources, todo, todo_resources)
 
 
