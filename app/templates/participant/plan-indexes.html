@@ -30,11 +30,7 @@
 
     <h4> Description: {{ description }} </h4>
 
-    <h3>Survey, your identifier is {{ current_user.user_anon_id }}</h3>
-    <div class="ui one column stackable grid">
-      <iframe frameBorder="0" width="100%" height="300px"src="{{ form_link }}"></iframe>
-      
-    </div>
+    <h3>Survey identifier is {{ current_user.user_anon_id }}</h3>
     <h3>Todo today</h3>
       <div class="ui styled fluid accordion">
       {% for (i, status, id) in todo %}
