@@ -83,6 +83,8 @@ def get_resources(current_user, type):
         for d in arr_days:
             if d == day:
                 status = PlanTodo.query.filter_by(plan_component_id=id, user_id=current_user.id).order_by('id desc').first()
+                if status != None and days[status.last_updated.weekday()] != day:
+                    status = False
                 todo.append((e, status, id))
 
     resources = [Resource.query.filter_by(fk_id=x.id).filter_by(fk_table=type).all() for (x, _) in rs]
