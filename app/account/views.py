@@ -83,15 +83,17 @@ def reset_password_request():
         if user:
             token = user.generate_password_reset_token()
             reset_link = url_for(
-                'account.reset_password', token=token, _external=True)
+                'account.reset_password',
+                token=token,
+                _external=True
+            )
             get_queue().enqueue(
                 send_email,
                 recipient=user.email,
-                subject='Reset Your Password',
+                subject='Password Reset Link',
                 template='account/email/reset_password',
                 user=user,
-                reset_link=reset_link,
-                next=request.args.get('next'))
+                reset_link=reset_link)
         flash('A password reset link has been sent to {}.'
               .format(form.email.data), 'warning')
         return redirect(url_for('account.login'))

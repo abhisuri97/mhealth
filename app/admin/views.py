@@ -4,7 +4,8 @@ from flask_rq import get_queue
 
 from .forms import (ChangeAccountTypeForm, ChangeUserEmailForm, ChangePlanForm, InviteUserForm,
                     NewUserForm, ExerciseForm, EditExerciseForm, MedicationForm,
-                    EditMedicationForm, NutritionForm, EditNutritionForm, PlanForm)
+                    EditMedicationForm, NutritionForm, EditNutritionForm, PlanForm, 
+                    ChangeUserPasswordForm)
 from . import admin
 from .. import db
 from ..decorators import admin_required
@@ -29,8 +30,8 @@ def new_user():
     if form.validate_on_submit():
         user = User(
             role=form.role.data,
-            # first_name=form.first_name.data,
-            # last_name=form.last_name.data,
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
             email=form.email.data,
             plan=form.plan.data,
             password=form.password.data)
@@ -50,8 +51,8 @@ def invite_user():
     if form.validate_on_submit():
         user = User(
             role=form.role.data,
-            # first_name=form.first_name.data,
-            # last_name=form.last_name.data,
+            first_name=form.first_name.data,
+            last_name=form.last_name.data,
             plan=form.plan.data,
             email=form.email.data)
         db.session.add(user)
@@ -97,6 +98,24 @@ def user_info(user_id):
     return render_template('admin/manage_user.html', user=user)
 
 
+@admin.route('/user/<int:user_id>/change-password', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def change_user_password(user_id):
+    """Change a user's email."""
+    user = User.query.filter_by(id=user_id).first()
+    if user is None:
+        abort(404)
+    form = ChangeUserPasswordForm()
+    if form.validate_on_submit():
+        user.password = form.password.data
+        db.session.add(user)
+        db.session.commit()
+        flash('Password for user {} successfully changed.'
+              .format(user.full_name()), 'form-success')
+    return render_template('admin/manage_user.html', user=user, form=form)
+
+
 @admin.route('/user/<int:user_id>/change-email', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -113,7 +132,6 @@ def change_user_email(user_id):
         flash('Email for user {} successfully changed to {}.'
               .format(user.full_name(), user.email), 'form-success')
     return render_template('admin/manage_user.html', user=user, form=form)
-
 
 @admin.route(
     '/user/<int:user_id>/change-account-type', methods=['GET', 'POST'])

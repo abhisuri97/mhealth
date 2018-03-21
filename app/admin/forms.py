@@ -12,12 +12,22 @@ from ..models import Role, User, Exercise, Medication, Nutrition, Plan
 
 class ChangeUserEmailForm(Form):
     email = EmailField(
-        'New email', validators=[InputRequired(), Length(1, 64), Email()])
+        'New email', validators=[Length(1, 64), Email()])
     submit = SubmitField('Update email')
 
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
+        if User.query.filter_by(email=field.data).count() > 1:
             raise ValidationError('Email already registered.')
+
+
+class ChangeUserPasswordForm(Form):
+    password = PasswordField(
+        'New password',
+        validators=[
+            InputRequired()
+        ]
+    )
+    submit = SubmitField('Update password')
 
 
 class ChangeAccountTypeForm(Form):
@@ -28,6 +38,7 @@ class ChangeAccountTypeForm(Form):
         query_factory=lambda: db.session.query(Role).order_by('permissions'))
     submit = SubmitField('Update role')
 
+
 class ChangePlanForm(Form):
     plan = QuerySelectField(
         'New plan type',
@@ -35,6 +46,7 @@ class ChangePlanForm(Form):
         get_label='name',
         query_factory=lambda: db.session.query(Plan).order_by('name'))
     submit = SubmitField('Update plan')
+
 
 class InviteUserForm(Form):
     role = QuerySelectField(
@@ -47,10 +59,10 @@ class InviteUserForm(Form):
         validators=[InputRequired()],
         get_label='name',
         query_factory=lambda: db.session.query(Plan).order_by('name'))
-    # first_name = StringField(
-        # 'First name', validators=[InputRequired(), Length(1, 64)])
-    # last_name = StringField(
-        # 'Last name', validators=[InputRequired(), Length(1, 64)])
+    first_name = StringField(
+        'First name', validators=[InputRequired(), Length(1, 64)])
+    last_name = StringField(
+        'Last name', validators=[InputRequired(), Length(1, 64)])
     email = EmailField(
         'Email', validators=[InputRequired(), Length(1, 64), Email()])
     submit = SubmitField('Invite')

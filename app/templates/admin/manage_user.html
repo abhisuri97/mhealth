@@ -6,6 +6,7 @@
 {% set endpoints = [
     ('admin.user_info', 'User information'),
     ('admin.change_user_email', 'Change email address'),
+    ('admin.change_user_password', 'Change password'),
     ('admin.change_account_type', 'Change account type'),
     ('admin.change_plan_type', 'Change plan type'),
     ('admin.usage_stats', 'User usage records'),
@@ -27,6 +28,9 @@
     <table class="ui compact definition table">
         <tr><td>ID</td><td>{{ user.user_anon_id }}</td></tr>
         <tr><td>Email address</td><td>{{ user.email }}</td></tr>
+        {% if user.full_name() != 'None None' %}
+        <tr><td>Full Name</td><td>{{ user.full_name() }}</td></tr>
+        {% endif %}
         <tr><td>Account type</td><td>{{ user.role.name }}</td></tr>
     </table>
 {% endmacro %}

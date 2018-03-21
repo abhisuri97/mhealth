@@ -24,6 +24,9 @@
     <table class="ui compact definition table">
         <tr><td>Identifier</td><td>{{ user.user_anon_id }}</td></tr>
         <tr><td>Email address</td><td>{{ user.email }}</td></tr>
+        {% if user.full_name() != 'None None' %}
+        <tr><td>Full Name</td><td>{{ user.full_name() }}</td></tr>
+        {% endif %}
         <tr><td>Account type</td><td>{{ user.role.name }}</td></tr>
     </table>
 {% endmacro %}
